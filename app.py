@@ -65,15 +65,25 @@ def text_to_speech(story):
     tts.save(audio_file_path)
     return audio_file_path
 
-detect_interface = gr.Interface(fn=detect_objects, inputs="image", outputs="text", title="Object Detection")
-story_interface = gr.Interface(fn=generate_story, inputs="text", outputs="text", title="Story Generation")
-summary_interface = gr.Interface(fn=summarize_story, inputs="text", outputs="text", title="Story Summarization")
-image_interface = gr.Interface(fn=generate_images, inputs="text", outputs="image", title="Image Generation")
-audio_interface = gr.Interface(fn=text_to_speech, inputs="text", outputs="audio", title="Text to Speech")
+def full_pipeline(image_path):
+    detected_objects = detect_objects(image_path)
+    story = generate_story(detected_objects)
+    scenes = summarize_story(story)
+    images = generate_images(scenes)
+    audio = text_to_speech(story) 
 
-# Συνδυασμός των interfaces σε ένα Gradio Tabbed Interface
-demo = gr.TabbedInterface([detect_interface, story_interface, summary_interface, image_interface, audio_interface],
-                          ["Detect Objects", "Generate Story", "Summarize Story", "Generate Images", "Text to Speech"])
+demo = gr.Interface(
+    fn=full_pipeline,
+    inputs=gr.Image(type="pil"),
+    outputs=[
+        gr.Textbox(label="Generated Story"),
+        gr.Textbox(label="Story Scenes"),
+        gr.Gallery(label="Generated Images"),
+        gr.Audio(label="Story Audio"),
+    ],
+    title="AI-Powered Storytelling Assistant",
+    description="Upload an image, and the AI will detect objects, generate a story, create images, and narrate the story."
+)
 
 if __name__ == "__main__":
     demo.launch()
