@@ -1,0 +1,13 @@
+torch
+opencv-python
+numpy
+gradio
+nltk
+pillow
+transformers
+diffusers
+ultralytics
+tts
+gtts
+openai
+
